@@ -11,6 +11,7 @@ rm -rf ./mnt
 mkdir ./mnt
 mount edison-image-quest.hddimg ./mnt
 cp ../quest/kernel/quest ./mnt/
+cp ../quest/kernel/sysprogs/shell ./mnt/
 sleep 1
 umount ./mnt
 rmdir ./mnt
