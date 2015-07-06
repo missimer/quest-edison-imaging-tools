@@ -12,6 +12,7 @@ mkdir ./mnt
 mount edison-image-quest.hddimg ./mnt
 cp ../quest/kernel/quest ./mnt/
 cp ../quest/kernel/sysprogs/shell ./mnt/
+cp ../quest/kernel/ramdisk.img ./mnt/
 sleep 1
 umount ./mnt
 rmdir ./mnt

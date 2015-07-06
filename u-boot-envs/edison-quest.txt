@@ -9,11 +9,11 @@ first_install_retry=0
 first_install_max_retries=3
 do_compute_target=if itest.b ${first_install_retry} -gt ${first_install_max_retries}; then echo "Switch to Rescue target"; setenv bootargs_target rescue; saveenv; fi
 mmc-bootargs=setenv bootargs root=PARTUUID=${uuid_rootfs} rootfstype=ext4 ${bootargs_console} ${bootargs_debug} systemd.unit=${bootargs_target}.target hardware_id=${hardware_id} g_multi.iSerialNumber=${serial#} g_multi.dev_addr=${usb0addr}
-quest-bootargs=setenv bootargs root=NONE
+quest-bootargs=setenv bootargs "root=(ram) ramdisk=1"
 loadaddr=0x2000000
 load_kernel=fatload mmc 0:7 ${loadaddr} quest
 mb_mmap=1,0x100000,0x20000000
-mb_modules=fatload,mmc 0:7 @ shell
+mb_modules=fatload,mmc 0:7 @ shell,mmc 0:7 @ ramdisk.img
 do_partition_done=0
 do_partition=if itest.b ${do_partition_done} -eq 1; then echo "Partitioning already done..."; else run do_force_partition ; fi
 do_force_partition=echo "Partitioning using GPT"; gpt write mmc 0 ${partitions} ; mmc rescan; setenv do_partition_done 1 ; saveenv
