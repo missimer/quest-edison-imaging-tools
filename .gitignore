@@ -1,3 +1,5 @@
 *.ext4
 *~
 *.log
+u-boot-quest.bin
+u-boot-envs/edison-quest.bin

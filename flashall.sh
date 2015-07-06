@@ -15,12 +15,13 @@ ESC_BASE_DIR=${BASE_DIR/' '/'\ '}
 
 USB_VID=8087
 USB_PID=0a99
-TIMEOUT_SEC=60
+TIMEOUT_SEC=120
 
 DO_RECOVERY=0
 DO_DFU_FLASH=1
 # Phone Flash tools configuration files
 PFT_XML_FILE="${BASE_DIR}/pft-config-edison.xml"
+EDISON_REBOOT_CMD=true
 
 # Handle Ifwi file for DFU update
 IFWI_DFU_FILE=${ESC_BASE_DIR}/edison_ifwi-dbg
@@ -89,6 +90,8 @@ function flash-debug {
 }
 
 function flash-ifwi {
+    eval "$EDISON_REBOOT_CMD"
+    sleep 2
 	if [ -x "$(which phoneflashtool)" ]; then
 		flash-ifwi-pft
 	elif [ -x "$(which xfstk-dldr-solo)" ]; then
@@ -127,6 +130,7 @@ function flash-ifwi-xfstk {
 function dfu-wait {
 	echo "Now waiting for dfu device ${USB_VID}:${USB_PID}"
 	echo "Please plug and reboot the board"
+	eval "$EDISON_REBOOT_CMD"
 	while [ `dfu-util -l -d ${USB_VID}:${USB_PID} | grep Found | grep -c ${USB_VID}` -eq 0 ] \
 		&& [ $TIMEOUT_SEC -gt 0 ] && [ $(( TIMEOUT_SEC-- )) ];
 	do
@@ -144,7 +148,7 @@ function dfu-wait {
 }
 
 # Execute old getopt to have long options support
-ARGS=$($GETOPTS -o hvlt:eidb -l "keep-data,recovery,help,quest" -n "${0##*/}" -- "$@");
+ARGS=$($GETOPTS -o hvlt:eidb -l "keep-data,recovery,help,quest,reboot-cmd:" -n "${0##*/}" -- "$@");
 #Bad arguments
 if [ $? -ne 0 ]; then print-usage ; fi;
 eval set -- "$ARGS";
@@ -160,12 +164,13 @@ while true; do
 		-b) shift; DO_RECOVERY=1; DO_DFU_FLASH=1; VARIANT_NAME=$VARIANT_NAME_BLANK;;
 		--recovery) shift; DO_RECOVERY=1;DO_DFU_FLASH=0;;
 		--keep-data) shift; DO_RECOVERY=0; VARIANT_NAME=$VARIANT_NAME_DEFAULT;;
+		--reboot-cmd) shift; EDISON_REBOOT_CMD=$1; shift;;
 		--quest) DO_RECOVERY=1;
                          DO_DFU_FLASH=1;
                          VARIANT_NAME=$VARIANT_NAME_QUEST;
                          U_BOOT_BIN=u-boot-quest.bin;
                          HDD_IMG=edison-image-quest.hddimg;
-                         shift; break;;
+                         shift;;
 		--) shift; break;;
 	esac
 done
